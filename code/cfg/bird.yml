@@ -20,8 +20,8 @@ ch_size: 3
 model: base
 
 gen_interval: 1
-test_interval: 10
-save_interval: 10
+test_interval: 5
+save_interval: 5
 
 truncation: True
 trunc_rate: 0.88
@@ -39,4 +39,5 @@ TEXT:
     WORDS_NUM: 18
     EMBEDDING_DIM: 256
     CAPTIONS_PER_IMAGE: 10
-    DAMSM_NAME: ../data/birds/DAMSMencoder/text_encoder200.pth
+    DAMSM_NAME: ../data/birds/DAMSMencoder/gpt2_text_encoder200.pth
+    #reyreey change

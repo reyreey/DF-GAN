@@ -3,17 +3,17 @@ cfg=$1
 
 # model settings
 imsize=256
-num_workers=4
-batch_size_per_gpu=32
+num_workers=2
+batch_size_per_gpu=32  #batch_size/no of gpus = 32/4
 stamp=normal
 train=True
 
 # resume training
 resume_epoch=1
-resume_model_path=./saved_models/bird/base_z_dim100_bird_256_2022_06_04_23_20_33/
+resume_model_path=./saved_models/bird/
 
 # DDP settings
-multi_gpus=True
+multi_gpus=false
 nodes=1
 master_port=11111
 
