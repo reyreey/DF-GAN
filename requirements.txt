@@ -13,3 +13,4 @@ tensorboard
 ftfy
 regex
 tqdm
+pytorch_pretrained_bert
