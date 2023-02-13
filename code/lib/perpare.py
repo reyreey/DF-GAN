@@ -20,7 +20,7 @@ from torch.utils.data import DataLoader, random_split
 from torch.utils.data.distributed import DistributedSampler
 
 from lib.utils import mkdir_p, get_rank, load_model_weights
-from models.DAMSM import RNN_ENCODER, CNN_ENCODER,GPT2_RNN_ENCODER
+from models.DAMSM import RNN_ENCODER, CNN_ENCODER,GPT2_ENCODER
 from models.GAN import NetG, NetD, NetC
 
 ###########   preparation   ############
@@ -31,7 +31,7 @@ def prepare_models(args):
     multi_gpus = args.multi_gpus
     # image encoder
     image_encoder = CNN_ENCODER(args.TEXT.EMBEDDING_DIM)
-    img_encoder_path = args.TEXT.DAMSM_NAME.replace('gpt2_text_encoder', 'image_encoder') #reyreey change
+    img_encoder_path = args.TEXT.IMAGE_ENCODER_DIR #reyreey change
     state_dict = torch.load(img_encoder_path, map_location='cpu')
     image_encoder = load_model_weights(image_encoder, state_dict, multi_gpus=False)
     # image_encoder.load_state_dict(state_dict)
@@ -40,7 +40,7 @@ def prepare_models(args):
         p.requires_grad = False
     image_encoder.eval()
     # text encoder
-    text_encoder = GPT2_RNN_ENCODER(n_words, nhidden=args.TEXT.EMBEDDING_DIM) #reyreey change
+    text_encoder = GPT2_ENCODER(n_words, nhidden=args.TEXT.EMBEDDING_DIM) #reyreey change
     state_dict = torch.load(args.TEXT.DAMSM_NAME, map_location='cpu')
     text_encoder = load_model_weights(text_encoder, state_dict, multi_gpus=False)
     text_encoder.cuda()

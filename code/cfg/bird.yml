@@ -40,4 +40,5 @@ TEXT:
     EMBEDDING_DIM: 256
     CAPTIONS_PER_IMAGE: 10
     DAMSM_NAME: ../data/birds/DAMSMencoder/gpt2_text_encoder200.pth
+    IMAGE_ENCODER_DIR: ../data/birds/DAMSMencoder/image_encoder200.pth
     #reyreey change
