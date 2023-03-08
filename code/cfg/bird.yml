@@ -4,7 +4,7 @@ dataset_name: birds
 data_dir: ../data/birds
 
 gpu_id: 0
-imsize: 256
+imgsize: 256
 z_dim: 100
 cond_dim: 256
 manual_seed: 100
@@ -39,4 +39,5 @@ TEXT:
     WORDS_NUM: 18
     EMBEDDING_DIM: 256
     CAPTIONS_PER_IMAGE: 10
-    DAMSM_NAME: ../data/birds/DAMSMencoder/text_encoder200.pth
+    TEXT_ENCODER_PATH: ../data/birds/DAMSMencoder/text_encoder200.pth
+    IMAGE_ENCODER_PATH: ../data/birds/DAMSMencoder/image_encoder200.pth

@@ -1,21 +1,17 @@
-import os
-import sys
+import datetime
 import errno
+import os
+import pickle
+
+import dateutil.tz
 import numpy as np
 import numpy.random as random
 import torch
-from torch import distributed as dist
-import json
-import pickle
-from tqdm import tqdm
 import yaml
-from easydict import EasyDict as edict
-import pprint
-import datetime
-import dateutil.tz
-from io import BytesIO
 from PIL import Image
-from torchvision import transforms, datasets
+from easydict import EasyDict as edict
+from torch import distributed as dist
+
 
 # test_utils
 def params_count(model):
@@ -54,7 +50,7 @@ def mkdir_p(path):
 # config
 def get_time_stamp():
     now = datetime.datetime.now(dateutil.tz.tzlocal())
-    timestamp = now.strftime('%Y_%m_%d_%H_%M_%S')  
+    timestamp = now.strftime('%Y_%m_%d_%H_%M_%S')
     return timestamp
 
 
@@ -119,11 +115,23 @@ def load_netG(netG, path, multi_gpus, train):
 
 
 def load_model_weights(model, weights, multi_gpus, train=True):
-    if list(weights.keys())[0].find('module')==-1:
+    """
+
+    Args:
+        model: our model
+        weights: initial weights
+        multi_gpus: true/false
+        train: true/false
+
+    Returns:
+        model: our model initialized with spacial weights
+    """
+    if list(weights.keys())[0].find('module') == -1:
         pretrained_with_multi_gpu = False
     else:
         pretrained_with_multi_gpu = True
-    if (multi_gpus==False) or (train==False):
+
+    if (multi_gpus is False) or (train is False):
         if pretrained_with_multi_gpu:
             state_dict = {
                 key[7:]: value
@@ -133,24 +141,26 @@ def load_model_weights(model, weights, multi_gpus, train=True):
             state_dict = weights
     else:
         state_dict = weights
+
     model.load_state_dict(state_dict)
+
     return model
 
 
 def save_models(netG, netD, netC, optG, optD, epoch, multi_gpus, save_path):
-    if (multi_gpus==True) and (get_rank() != 0):
+    if (multi_gpus == True) and (get_rank() != 0):
         None
     else:
         state = {'model': {'netG': netG.state_dict(), 'netD': netD.state_dict(), 'netC': netC.state_dict()}, \
-                'optimizers': {'optimizer_G': optG.state_dict(), 'optimizer_D': optD.state_dict()},\
-                'epoch': epoch}
+                 'optimizers': {'optimizer_G': optG.state_dict(), 'optimizer_D': optD.state_dict()}, \
+                 'epoch': epoch}
         torch.save(state, '%s/state_epoch_%03d.pth' % (save_path, epoch))
 
 
 # data util
-def write_to_txt(filename, contents): 
-    fh = open(filename, 'w') 
-    fh.write(contents) 
+def write_to_txt(filename, contents):
+    fh = open(filename, 'w')
+    fh.write(contents)
     fh.close()
 
 
@@ -213,7 +223,7 @@ def sort_example_captions(captions, cap_lens, device):
 
 
 def prepare_sample_data(captions, caption_lens, text_encoder, device):
-    print('*'*40)
+    print('*' * 40)
     captions, sorted_cap_lens, sorted_cap_idxs = sort_example_captions(captions, caption_lens, device)
     sent_emb, words_embs = encode_tokens(text_encoder, captions, sorted_cap_lens)
     sent_emb = rm_sort(sent_emb, sorted_cap_idxs)
@@ -230,7 +240,7 @@ def encode_tokens(text_encoder, caption, cap_lens):
             hidden = text_encoder.init_hidden(caption.size(0))
         words_embs, sent_emb = text_encoder(caption, cap_lens, hidden)
         words_embs, sent_emb = words_embs.detach(), sent_emb.detach()
-    return sent_emb, words_embs 
+    return sent_emb, words_embs
 
 
 def sort_sents(captions, caption_lens, device):
