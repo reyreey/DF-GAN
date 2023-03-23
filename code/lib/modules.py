@@ -31,6 +31,18 @@ import torch.distributed as dist
 
 ############   modules   ############
 def train(dataloader, netG, netD, netC, text_encoder, optimizerG, optimizerD, args):
+    """
+
+    Args:
+        dataloader:
+        netG:
+        netD:
+        netC:
+        text_encoder:
+        optimizerG:
+        optimizerD:
+        args:
+    """
     batch_size = args.batch_size
     device = args.device
     epoch = args.current_epoch

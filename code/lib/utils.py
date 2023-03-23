@@ -31,9 +31,21 @@ def load_npz(path):
 
 
 def truncated_noise(batch_size=1, dim_z=100, truncation=1., seed=None):
+    """
+
+    Args:
+        batch_size:
+        dim_z:
+        truncation:
+        seed:
+
+    Returns:
+
+    """
     from scipy.stats import truncnorm
     state = None if seed is None else np.random.RandomState(seed)
     values = truncnorm.rvs(-2, 2, size=(batch_size, dim_z), random_state=state).astype(np.float32)
+
     return truncation * values
 
 

@@ -56,6 +56,14 @@ class RNN_ENCODER(nn.Module):
         # self.decoder.bias.data.fill_(0)
 
     def init_hidden(self, bsz):
+        """
+            initialize hidden layer
+        Args:
+            bsz:
+
+        Returns:
+
+        """
         weight = next(self.parameters()).data
         if self.rnn_type == 'LSTM':
             return (Variable(weight.new(self.nlayers * self.num_directions,

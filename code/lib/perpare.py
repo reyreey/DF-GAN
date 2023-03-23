@@ -38,29 +38,42 @@ def prepare_models(args):
     # image_encoder.load_state_dict(state_dict)
 
     image_encoder.to(device)
+
     for p in image_encoder.parameters():
         p.requires_grad = False
+
     image_encoder.eval()
+
     # text encoder
     text_encoder = RNN_ENCODER(n_words, nhidden=args.TEXT.EMBEDDING_DIM)
+
     state_dict = torch.load(args.TEXT.DAMSM_NAME, map_location='cpu')
+
     text_encoder = load_model_weights(text_encoder, state_dict, multi_gpus=False)
+
     text_encoder.cuda()
+
     for p in text_encoder.parameters():
         p.requires_grad = False
+
     text_encoder.eval()
+
     # GAN models
     netG = NetG(args.nf, args.z_dim, args.cond_dim, args.imsize, args.ch_size).to(device)
     netD = NetD(args.nf, args.imsize, args.ch_size).to(device)
     netC = NetC(args.nf, args.cond_dim).to(device)
-    if (args.multi_gpus) and (args.train):
-        print("Let's use", torch.cuda.device_count(), "GPUs!")
+
+    if args.multi_gpus and args.train:
+        print("Let's use", torch.cuda.device_count(), "GPU(s)!")
+
         netG = torch.nn.parallel.DistributedDataParallel(netG, broadcast_buffers=False,
                                                           device_ids=[local_rank],
                                                           output_device=local_rank, find_unused_parameters=True)
+
         netD = torch.nn.parallel.DistributedDataParallel(netD, broadcast_buffers=False,
                                                           device_ids=[local_rank],
                                                           output_device=local_rank, find_unused_parameters=True)
+
         netC = torch.nn.parallel.DistributedDataParallel(netC, broadcast_buffers=False,
                                                           device_ids=[local_rank],
                                                           output_device=local_rank, find_unused_parameters=True)

@@ -1,19 +1,17 @@
-from nltk.tokenize import RegexpTokenizer
-from collections import defaultdict
-
-import torch
-import torch.utils.data as data
-from torch.autograd import Variable
-import torchvision.transforms as transforms
-
 import os
 import sys
-import time
+from collections import defaultdict
+
 import numpy as np
-import pandas as pd
-from io import BytesIO
-from PIL import Image
 import numpy.random as random
+import pandas as pd
+import torch
+import torch.utils.data as data
+import torchvision.transforms as transforms
+from PIL import Image
+from nltk.tokenize import RegexpTokenizer
+from torch.autograd import Variable
+
 if sys.version_info[0] == 2:
     import cPickle as pickle
 else:
@@ -23,56 +21,124 @@ from .utils import truncated_noise
 
 
 def get_one_batch_data(dataloader, text_encoder, args):
+    """
+
+    Args:
+        dataloader:
+        text_encoder:
+        args:
+
+    Returns:
+
+    """
     data = next(iter(dataloader))
     imgs, sent_emb, words_embs, keys = prepare_data(data, text_encoder)
+
     return imgs, words_embs, sent_emb
 
 
 def get_fix_data(train_dl, test_dl, text_encoder, args):
+    """
+
+    Args:
+        train_dl:
+        test_dl:
+        text_encoder:
+        args:
+
+    Returns:
+
+    """
     fixed_image_train, fixed_word_train, fixed_sent_train = get_one_batch_data(train_dl, text_encoder, args)
     fixed_image_test, fixed_word_test, fixed_sent_test = get_one_batch_data(test_dl, text_encoder, args)
+
     fixed_image = torch.cat((fixed_image_train, fixed_image_test), dim=0)
     fixed_sent = torch.cat((fixed_sent_train, fixed_sent_test), dim=0)
+
     if args.truncation==True:
         noise = truncated_noise(fixed_image.size(0), args.z_dim, args.trunc_rate)
         fixed_noise = torch.tensor(noise, dtype=torch.float).to(args.device)
     else:
         fixed_noise = torch.randn(fixed_image.size(0), args.z_dim).to(args.device)
+
     return fixed_image, fixed_sent, fixed_noise
 
 
 def prepare_data(data, text_encoder):
+    """
+
+    Args:
+        data: captions
+        text_encoder: text encoder model
+
+    Returns:
+        embeddings
+    """
     imgs, captions, caption_lens, keys = data
     captions, sorted_cap_lens, sorted_cap_idxs = sort_sents(captions, caption_lens)
     sent_emb, words_embs = encode_tokens(text_encoder, captions, sorted_cap_lens)
     sent_emb = rm_sort(sent_emb, sorted_cap_idxs)
     words_embs = rm_sort(words_embs, sorted_cap_idxs)
     imgs = Variable(imgs).cuda()
+
     return imgs, sent_emb, words_embs, keys
 
 
 def sort_sents(captions, caption_lens):
-    # sort data by the length in a decreasing order
+    """
+        sort data by the length in a decreasing order
+    Args:
+        captions: input sentences
+        caption_lens: length of sentences
+
+    Returns:
+        captions: sentences
+        sorted_cap_lens: sorted length of sentences
+        sorted_cap_indices: indices of sorted lengths
+    """
+
     sorted_cap_lens, sorted_cap_indices = torch.sort(caption_lens, 0, True)
     captions = captions[sorted_cap_indices].squeeze()
     captions = Variable(captions).cuda()
     sorted_cap_lens = Variable(sorted_cap_lens).cuda()
+
     return captions, sorted_cap_lens, sorted_cap_indices
 
 
 def encode_tokens(text_encoder, caption, cap_lens):
-    # encode text
+    """
+        encode text
+    Args:
+        text_encoder:
+        caption:
+        cap_lens:
+
+    Returns:
+
+    """
+
     with torch.no_grad():
         if hasattr(text_encoder, 'module'):
             hidden = text_encoder.module.init_hidden(caption.size(0))
         else:
             hidden = text_encoder.init_hidden(caption.size(0))
+
         words_embs, sent_emb = text_encoder(caption, cap_lens, hidden)
         words_embs, sent_emb = words_embs.detach(), sent_emb.detach()
+
     return sent_emb, words_embs 
 
 
 def rm_sort(caption, sorted_cap_idxs):
+    """
+
+    Args:
+        caption:
+        sorted_cap_idxs: sorted captions indices
+
+    Returns:
+        random sort captions
+    """
     non_sort_cap = torch.empty_like(caption)
     for idx, sort in enumerate(sorted_cap_idxs):
         non_sort_cap[sort] = caption[idx]

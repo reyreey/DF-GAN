@@ -56,7 +56,25 @@ def parse_args():
 
 def training(strat_epoch, sampler, train_dl, netG, netD, netC, text_encoder, optimizerG
              , optimizerD, fixed_z, fixed_sent, writer, valid_dl, m1, s1):
+    """
 
+    Args:
+        strat_epoch:
+        sampler:
+        train_dl:
+        netG:
+        netD:
+        netC:
+        text_encoder:
+        optimizerG:
+        optimizerD:
+        fixed_z:
+        fixed_sent:
+        writer:
+        valid_dl:
+        m1:
+        s1:
+    """
     test_interval, gen_interval, save_interval = args.test_interval, args.gen_interval, args.save_interval
     # torch.cuda.empty_cache()
     for epoch in range(strat_epoch, args.max_epoch, 1):
@@ -169,6 +187,7 @@ def main(args):
         pprint.pprint(args)
         arg_save_path = osp.join(log_dir, 'args.yaml')
         save_args(arg_save_path, args)
+
         print("Start Training")
 
     # Start training
