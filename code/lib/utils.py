@@ -160,11 +160,23 @@ def load_model_weights(model, weights, multi_gpus, train=True):
 
 
 def save_models(netG, netD, netC, optG, optD, epoch, multi_gpus, save_path):
-    if (multi_gpus == True) and (get_rank() != 0):
+    """
+    save current model
+    Args:
+        netG: generator model
+        netD: discriminator model
+        netC:
+        optG: generator optimizer
+        optD: discriminator optimizer
+        epoch:
+        multi_gpus: use multi gpus?
+        save_path:
+    """
+    if (multi_gpus is True) and (get_rank() != 0):
         None
     else:
-        state = {'model': {'netG': netG.state_dict(), 'netD': netD.state_dict(), 'netC': netC.state_dict()}, \
-                 'optimizers': {'optimizer_G': optG.state_dict(), 'optimizer_D': optD.state_dict()}, \
+        state = {'model': {'netG': netG.state_dict(), 'netD': netD.state_dict(), 'netC': netC.state_dict()},
+                 'optimizers': {'optimizer_G': optG.state_dict(), 'optimizer_D': optD.state_dict()},
                  'epoch': epoch}
         torch.save(state, '%s/state_epoch_%03d.pth' % (save_path, epoch))
 
