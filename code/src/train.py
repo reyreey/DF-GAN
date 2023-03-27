@@ -80,7 +80,7 @@ def training(strat_epoch, sampler, train_dl, netG, netD, netC, text_encoder, opt
     # torch.cuda.empty_cache()
 
     from datetime import datetime
-    scores_file = open("{0}/fid.csv".format(log_dir), "a")
+    scores_file = open("{0}/fid.txt".format(log_dir), "a")
 
     for epoch in range(strat_epoch, args.max_epoch, 1):
 
@@ -130,13 +130,13 @@ def training(strat_epoch, sampler, train_dl, netG, netD, netC, text_encoder, opt
             print('*' * 40)
         # torch.cuda.empty_cache()
 
-        scores_file.close()
+    scores_file.close()
 
 
 def main(args):
     time_stamp = get_time_stamp()
 
-    stamp = '_'.join([str(args.model), str(args.stamp), str(args.CONFIG_NAME), str(args.imsize), time_stamp])
+    stamp = '_'.join([str(args.model), str(args.stamp), str(args.CONFIG_NAME), str(args.imgsize), time_stamp])
 
     # directory of generated model
     args.model_save_file = osp.join(ROOT_PATH, 'saved_models', str(args.CONFIG_NAME), stamp)
