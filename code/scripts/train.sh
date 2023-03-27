@@ -2,7 +2,7 @@
 cfg=$1
 
 # model settings
-imsize=256
+imgsize=256
 num_workers=4
 batch_size_per_gpu=32
 stamp=normal
