@@ -55,10 +55,11 @@ def parse_args():
 
 
 def training(strat_epoch, sampler, train_dl, netG, netD, netC, text_encoder, optimizerG
-             , optimizerD, fixed_z, fixed_sent, writer, valid_dl, m1, s1):
+             , optimizerD, fixed_z, fixed_sent, writer, valid_dl, m1, s1,log_dir):
     """
 
     Args:
+        log_dir:
         strat_epoch:
         sampler:
         train_dl:
@@ -79,7 +80,7 @@ def training(strat_epoch, sampler, train_dl, netG, netD, netC, text_encoder, opt
     # torch.cuda.empty_cache()
 
     from datetime import datetime
-    scores_file = open("fid_%s.txt".format(datetime.now()), "a")
+    scores_file = open("{0}/fid.csv".format(log_dir), "a")
 
     for epoch in range(strat_epoch, args.max_epoch, 1):
 
@@ -203,8 +204,8 @@ def main(args):
         print("Start Training")
 
     # Start training
-    training(start_epoch, sampler, train_dl, netG, netD, netC, text_encoder, optimizerG
-             , optimizerD, fixed_z, fixed_sent, writer, valid_dl, m1, s1)
+    training(start_epoch, sampler, train_dl, netG, netD, netC, text_encoder, optimizerG, optimizerD, fixed_z,
+             fixed_sent, writer, valid_dl, m1, s1, log_dir)
 
 
 if __name__ == "__main__":
