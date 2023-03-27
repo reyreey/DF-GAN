@@ -23,7 +23,7 @@ CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=$node
                     --cfg $cfg \
                     --batch_size $batch_size_per_gpu \
                     --num_workers $num_workers \
-                    --imsize $imsize \
+                    --imgsize $imgsize \
                     --resume_epoch $resume_epoch \
                     --resume_model_path $resume_model_path \
                     --train $train \

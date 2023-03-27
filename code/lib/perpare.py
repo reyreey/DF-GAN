@@ -47,7 +47,7 @@ def prepare_models(args):
     # text encoder
     text_encoder = RNN_ENCODER(n_words, nhidden=args.TEXT.EMBEDDING_DIM)
 
-    state_dict = torch.load(args.TEXT.DAMSM_NAME, map_location='cpu')
+    state_dict = torch.load(args.TEXT.TEXT_ENCODER_PATH, map_location='cpu')
 
     text_encoder = load_model_weights(text_encoder, state_dict, multi_gpus=False)
 
@@ -59,8 +59,8 @@ def prepare_models(args):
     text_encoder.eval()
 
     # GAN models
-    netG = NetG(args.nf, args.z_dim, args.cond_dim, args.imsize, args.ch_size).to(device)
-    netD = NetD(args.nf, args.imsize, args.ch_size).to(device)
+    netG = NetG(args.nf, args.z_dim, args.cond_dim, args.imgsize, args.ch_size).to(device)
+    netD = NetD(args.nf, args.imgsize, args.ch_size).to(device)
     netC = NetC(args.nf, args.cond_dim).to(device)
 
     if args.multi_gpus and args.train:
@@ -82,19 +82,19 @@ def prepare_models(args):
 
 def prepare_dataset(args, split, transform):
 
-    imsize = args.imsize
+    imgsize = args.imgsize
 
     if transform is not None:
         image_transform = transform
     elif args.CONFIG_NAME.find('CelebA') != -1:
         image_transform = transforms.Compose([
-            transforms.Resize(int(imsize)),
-            transforms.RandomCrop(imsize),
+            transforms.Resize(int(imgsize)),
+            transforms.RandomCrop(imgsize),
             transforms.RandomHorizontalFlip()])
     else:
         image_transform = transforms.Compose([
-            transforms.Resize(int(imsize * 76 / 64)),
-            transforms.RandomCrop(imsize),
+            transforms.Resize(int(imgsize * 76 / 64)),
+            transforms.RandomCrop(imgsize),
             transforms.RandomHorizontalFlip()])
 
     # train dataset
