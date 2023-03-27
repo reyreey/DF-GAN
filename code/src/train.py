@@ -77,6 +77,10 @@ def training(strat_epoch, sampler, train_dl, netG, netD, netC, text_encoder, opt
     """
     test_interval, gen_interval, save_interval = args.test_interval, args.gen_interval, args.save_interval
     # torch.cuda.empty_cache()
+
+    from datetime import datetime
+    scores_file = open("fid_%s.txt".format(datetime.now()), "a")
+
     for epoch in range(strat_epoch, args.max_epoch, 1):
 
         if args.multi_gpus is False:
@@ -107,6 +111,8 @@ def training(strat_epoch, sampler, train_dl, netG, netD, netC, text_encoder, opt
             fid = test(valid_dl, text_encoder, netG, args.device, m1, s1, epoch, args.max_epoch,
                        args.sample_times, args.z_dim, args.batch_size, args.truncation, args.trunc_rate)
 
+
+
         if (args.multi_gpus is True) and (get_rank() != 0):
             None
         else:
@@ -114,10 +120,16 @@ def training(strat_epoch, sampler, train_dl, netG, netD, netC, text_encoder, opt
                 writer.add_scalar('FID', fid, epoch)
                 print('The %d epoch FID: %.2f' % (epoch, fid))
 
+                # save fid score in each interval
+                scores_file.write(str(epoch) + ',' + str(fid))
+
+
             end_t = time.time()
             print('The epoch %d costs %.2fs' % (epoch, end_t - start_t))
             print('*' * 40)
         # torch.cuda.empty_cache()
+
+        scores_file.close()
 
 
 def main(args):
@@ -135,7 +147,7 @@ def main(args):
     log_dir = osp.join(ROOT_PATH, 'logs/{0}'.format(osp.join(str(args.CONFIG_NAME), 'train', stamp)))
 
     # make directories
-    if (args.multi_gpus == True) and (get_rank() != 0):
+    if (args.multi_gpus is True) and (get_rank() != 0):
         None
     else:
         mkdir_p(osp.join(ROOT_PATH, 'logs'))
