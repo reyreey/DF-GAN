@@ -68,7 +68,11 @@ class RNN_ENCODER(nn.Module):
 
     def init_weights(self):
         initrange = 0.1
-        self.encoder.weight.data.uniform_(-initrange, initrange)
+        if self.transformer_type is None:
+            self.encoder.weight.data.uniform_(-initrange, initrange)
+        else:
+            self.linear.weight.data.uniform_(-initrange, initrange)
+
         # Do not need to initialize RNN parameters, which have been initialized
         # http://pytorch.org/docs/master/_modules/torch/nn/modules/rnn.html#LSTM
         # self.decoder.weight.data.uniform_(-initrange, initrange)
@@ -96,7 +100,12 @@ class RNN_ENCODER(nn.Module):
     def forward(self, captions, cap_lens, hidden, mask=None):
         # input: torch.LongTensor of size batch x n_steps
         # --> emb: batch x n_steps x ninput
-        emb = self.drop(self.encoder(captions))
+        if self.transformer_type is None:
+            emb = self.drop(self.encoder(captions))
+        else:
+            emb, _ = self.encoder(captions)
+            emb = self.gpt2_linear(emb)
+            emb = self.drop(emb)
         #
         # Returns: a PackedSequence object
         cap_lens = cap_lens.data.tolist()
