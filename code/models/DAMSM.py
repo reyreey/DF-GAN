@@ -104,7 +104,7 @@ class RNN_ENCODER(nn.Module):
             emb = self.drop(self.encoder(captions))
         else:
             emb, _ = self.encoder(captions)
-            emb = self.gpt2_linear(emb)
+            emb = self.linear(emb)
             emb = self.drop(emb)
         #
         # Returns: a PackedSequence object
