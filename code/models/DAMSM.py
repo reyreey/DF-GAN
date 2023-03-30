@@ -3,6 +3,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from torchvision import models
+from transformers import BertModel, TFGPT2Model, AutoModelForMaskedLM
 
 
 # ############## Text2Image Encoder-Decoder #######
@@ -21,6 +22,10 @@ class RNN_ENCODER(nn.Module):
             self.num_directions = 2
         else:
             self.num_directions = 1
+
+        # use a type of transformers(BERT or GPT2 or XLM or None)
+        self.transformer_type = None
+
         # number of features in the hidden state
         self.nhidden = nhidden // self.num_directions
 
@@ -28,7 +33,23 @@ class RNN_ENCODER(nn.Module):
         self.init_weights()
 
     def define_module(self):
-        self.encoder = nn.Embedding(self.ntoken, self.ninput)
+        if self.transformer_type is None:
+            self.encoder = nn.Embedding(self.ntoken, self.ninput)
+
+        else:
+            if self.transformer_type == 'GPT2':
+                self.encoder = TFGPT2Model.from_pretrained('gpt2')
+
+            elif self.transformer_type == 'BERT':
+                self.encoder = BertModel.from_pretrained("bert-large-uncased")
+
+            elif self.transformer_type == 'XLM':
+                self.encoder = AutoModelForMaskedLM.from_pretrained("xlm-roberta-large")
+
+            for param in self.encoder.parameters():
+                param.requires_grad = False
+            self.linear = nn.Linear(768, self.ninput)
+
         self.drop = nn.Dropout(self.drop_prob)
         if self.rnn_type == 'LSTM':
             # dropout: If non-zero, introduces a dropout layer on
@@ -152,7 +173,7 @@ class CNN_ENCODER(nn.Module):
     def forward(self, x):
         features = None
         # --> fixed-size input: batch x 3 x 299 x 299
-        x = nn.functional.interpolate(x,size=(299, 299), mode='bilinear', align_corners=False)
+        x = nn.functional.interpolate(x, size=(299, 299), mode='bilinear', align_corners=False)
         # 299 x 299 x 3
         x = self.Conv2d_1a_3x3(x)
         # 149 x 149 x 32
