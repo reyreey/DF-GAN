@@ -86,6 +86,20 @@ def prepare_dataset(args, split, transform):
 
     if transform is not None:
         image_transform = transform
+
+    elif args.model.find('Aug') != -1:
+
+        image_transform = T.RandomApply([T.Pad(padding=10), T.RandomHorizontalFlip(p=0.5),
+                                         T.TrivialAugmentWide(),
+                                         T.RandomAutocontrast(), T.RandomAdjustSharpness(sharpness_factor=2),
+                                         T.RandomPerspective(distortion_scale=0.6, p=1.0),
+                                         T.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5))], p=0.5)
+        image_transform = transforms.Compose([
+            image_transform,
+            transforms.Resize(int(imgsize * 76 / 64)),
+            transforms.RandomCrop(imgsize)
+            ])
+
     elif args.CONFIG_NAME.find('CelebA') != -1:
         image_transform = transforms.Compose([
             transforms.Resize(int(imgsize)),
