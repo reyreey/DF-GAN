@@ -79,8 +79,8 @@ def training(strat_epoch, sampler, train_dl, netG, netD, netC, text_encoder, opt
     test_interval, gen_interval, save_interval = args.test_interval, args.gen_interval, args.save_interval
     # torch.cuda.empty_cache()
 
-    from datetime import datetime
     scores_file = open("{0}/fid.txt".format(log_dir), "a")
+    scores_file.write('epoch , fid')
 
     for epoch in range(strat_epoch, args.max_epoch, 1):
 
@@ -122,7 +122,7 @@ def training(strat_epoch, sampler, train_dl, netG, netD, netC, text_encoder, opt
                 print('The %d epoch FID: %.2f' % (epoch, fid))
 
                 # save fid score in each interval
-                scores_file.write(str(epoch) + ',' + str(fid))
+                scores_file.write(str(epoch) + ' , ' + str(fid))
 
 
             end_t = time.time()
