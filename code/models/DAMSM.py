@@ -3,7 +3,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from torchvision import models
-from transformers import BertModel, TFGPT2Model, AutoModelForMaskedLM
+from pytorch_pretrained_bert import BertModel, GPT2Model, TransfoXLModel
 
 
 # ############## Text2Image Encoder-Decoder #######
@@ -38,13 +38,13 @@ class RNN_ENCODER(nn.Module):
 
         else:
             if self.transformer_type == 'GPT2':
-                self.encoder = TFGPT2Model.from_pretrained('gpt2')
+                self.encoder = GPT2Model.from_pretrained('gpt2')
 
             elif self.transformer_type == 'BERT':
                 self.encoder = BertModel.from_pretrained("bert-large-uncased")
 
             elif self.transformer_type == 'XLM':
-                self.encoder = AutoModelForMaskedLM.from_pretrained("xlm-roberta-large")
+                self.encoder = TransfoXLModel.from_pretrained("xlm-roberta-large")
 
             for param in self.encoder.parameters():
                 param.requires_grad = False
